@@ -12,105 +12,117 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,700&display=swap');
 
-    /* --- 背景 --- */
+    /* ★★★ここからが修正箇所★★★ */
+    /* アプリ全体の背景を、メニュー用紙の色（明るい色）に統一 */
     .stApp {
-        background-color: #f5f0e1;
-        background-image: url("https://www.transparenttextures.com/patterns/old-paper.png");
-        background-attachment: fixed;
+        background-color: #f5f0e1; /* 薄いベージュ */
     }
-
-    /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
-    .main .block-container {
-        max-width: 700px; padding: 3rem; background-color: #fffef8;
-        border: 1px solid #d4c8b8; border-radius: 5px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        position: relative;
-    }
-
-    /* --- メニュー用紙の装飾的な枠線 --- */
-    .main .block-container::before {
-        content: ''; position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
-        border: 2px double #d8c9b1; border-radius: 3px; pointer-events: none;
-    }
-
-    /* ★★★ ここからがダークモード対策 ★★★ */
-    /* 全ての文字要素に色の固定を指示 */
-    h1, h2, h3, h4, h5, h6, p, li, label, .st-emotion-cache-1qg05j3, .st-emotion-cache-1yycg8b p {
-        color: inherit !important;
-    }
-    .main .block-container, .main .block-container p, .stMarkdown {
+    /* すべての文字の基本色を、読みやすい濃い色に固定 */
+    body, p, h1, h2, h3, h4, h5, h6, label, summary, .stMarkdown, div[data-testid="stMarkdownContainer"] p {
         color: #4a4a4a !important;
+        font-family: 'Noto Serif JP', serif;
     }
-    h1 {
+    /* タイトルなど、一部の色だけアクセントとして変更 */
+    h1, h2 {
         color: #a88f59 !important;
-    }
-    h2 {
-       color: #a88f59 !important;
-    }
-    h3 {
-       color: #3d3d3d !important;
+        font-family: 'Playfair Display', serif !important;
+        font-style: italic;
     }
     a {
        color: #a88f59 !important;
+       font-weight: bold;
     }
-    /* ★★★ ここまでがダークモード対策 ★★★ */
+    /* ★★★ここまで★★★ */
 
-
-    /* --- 全体のフォント --- */
-    body {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 17px;
-        line-height: 1.8;
+    /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
+    .main .block-container {
+        max-width: 700px;
+        padding: 3rem;
+        background-color: #fffef8;
+        border: 1px solid #d4c8b8;
+        border-radius: 5px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    .main .block-container::before {
+        content: '';
+        position: absolute;
+        top: 15px; left: 15px; right: 15px; bottom: 15px;
+        border: 2px double #d8c9b1;
+        border-radius: 3px;
+        pointer-events: none;
     }
     
     /* --- タイトル --- */
     h1 {
-        font-family: 'Playfair Display', serif; font-style: italic;
         text-align: center;
-        padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px;
+        padding-bottom: 0.3em;
+        margin-bottom: 1em;
+        font-size: 3.2em;
+        letter-spacing: 1px;
     }
     
     /* --- 説明文 --- */
     .st-emotion-cache-1yycg8b p {
-        text-align: center; font-size: 1em;
+        text-align: center;
+        font-size: 1em;
     }
-
+    
     /* --- サブタイトル --- */
     h2 {
-        text-align: center; font-family: 'Playfair Display', serif; font-style: italic;
-        margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em;
+        text-align: center;
+        margin-top: 2em;
+        margin-bottom: 1.5em;
+        font-size: 2.2em;
     }
 
     /* --- 料理名 --- */
     h3 {
-        font-weight: 700; border-bottom: 1px dotted #b8b0a0;
-        padding-bottom: 0.5em; margin-top: 1.5em; margin-bottom: 1em; font-size: 1.3em;
+        border-bottom: 1px dotted #b8b0a0;
+        padding-bottom: 0.5em;
+        margin-top: 1.5em;
+        margin-bottom: 1em;
+        font-size: 1.3em;
     }
-
+    
     /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
-        border: 1px solid #c9c3b3 !important; background-color: #fff; border-radius: 3px;
-        padding: 10px !important; font-size: 16px; font-family: 'Noto Serif JP', serif;
+        border: 1px solid #c9c3b3 !important;
+        background-color: #fff;
+        border-radius: 3px;
+        padding: 10px !important;
+        font-size: 16px;
     }
-
+    
     /* --- ボタン --- */
     .stButton>button {
         background-color: #a88f59;
-        color: white !important; /* 文字色も固定 */
-        border: 1px solid #a88f59; border-radius: 5px;
-        font-family: 'Noto Serif JP', serif; font-weight: 500; letter-spacing: 1px;
-        padding: 12px 24px; font-size: 18px; transition: background-color 0.3s ease;
+        color: white !important;
+        border: 1px solid #a88f59;
+        border-radius: 5px;
+        font-weight: 500;
+        letter-spacing: 1px;
+        padding: 12px 24px;
+        font-size: 18px;
+        transition: background-color 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #8c7749; border-color: #8c7749;
+        background-color: #8c7749;
+        border-color: #8c7749;
     }
-
+    
     /* --- 結果表示（Expander） --- */
     details {
-        border: 1px solid #e0d8c0; border-radius: 5px; padding: 1em; margin-bottom: 1em;
+        border: 1px solid #e0d8c0;
+        border-radius: 5px;
+        padding: 1em;
+        margin-bottom: 1em;
         background-color: rgba(255,255,255,0.3);
     }
     details summary {
-        font-weight: 700; font-size: 1.1em; cursor: pointer;
+        font-weight: 700;
+        font-size: 1.1em;
+        cursor: pointer;
     }
     </style>
     """,
@@ -182,15 +194,14 @@ with st.form(key='my_form'):
     ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
     user_request = st.text_input('その他、ご要望はございますか？（任意）', placeholder='例: 3品ほしい。一品は汁物')
     
-    # ボタンを2列に配置
-    col1, col2 = st.columns([3, 1]) # 提案ボタンの幅をクリアボタンの3倍に
+    col1, col2 = st.columns([3, 1])
     with col1:
         submit_button = st.form_submit_button(label='献立を提案いただく')
     with col2:
         clear_button = st.form_submit_button(label='クリア')
 
 # --- 検索実行と結果表示 ---
-if submit_button: # 提案ボタンが押された時だけ実行
+if submit_button:
     if not api_key:
         st.error("恐れ入りますが、先にAPIキーの設定をお願いいたします。")
     elif not ingredients:
