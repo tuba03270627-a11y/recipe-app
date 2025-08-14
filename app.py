@@ -12,24 +12,97 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,700&display=swap');
-    .stApp { background-color: #f5f0e1; background-image: url("https://www.transparenttextures.com/patterns/old-paper.png"); background-attachment: fixed; }
-    .main .block-container { max-width: 700px; padding: 3rem; background-color: #fffef8; border: 1px solid #d4c8b8; border-radius: 5px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); position: relative; }
-    .main .block-container::before { content: ''; position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; border: 2px double #d8c9b1; border-radius: 3px; pointer-events: none; }
-    body, p, h1, h2, h3, h4, h5, h6, label, summary, .stMarkdown, div[data-testid="stMarkdownContainer"] p { color: #4a4a4a !important; font-family: 'Noto Serif JP', serif; }
-    h1, h2 { color: #a88f59 !important; font-family: 'Playfair Display', serif !important; font-style: italic; }
-    a { color: #a88f59 !important; font-weight: bold; }
-    h1 { text-align: center; padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px; }
-    h2 { text-align: center; margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em; }
-    .stTextArea textarea, .stTextInput>div>div>input { border: 1px solid #c9c3b3 !important; background-color: #fff !important; border-radius: 3px; padding: 10px !important; font-size: 16px; color: #4a4a4a !important; }
+
+    /* ★★★ここからが修正箇所★★★ */
+    /* アプリ全体の背景を、メニュー用紙の色（明るい色）に統一 */
+    .stApp {
+        background-color: #f5f0e1; /* 薄いベージュ */
+    }
+    /* すべての文字の基本色を、読みやすい濃い色に固定 */
+    body, p, h1, h2, h3, h4, h5, h6, label, summary, .stMarkdown, div[data-testid="stMarkdownContainer"] p {
+        color: #4a4a4a !important;
+        font-family: 'Noto Serif JP', serif;
+    }
+    /* タイトルなど、一部の色だけアクセントとして変更 */
+    h1, h2 {
+        color: #a88f59 !important;
+        font-family: 'Playfair Display', serif !important;
+        font-style: italic;
+    }
+    a {
+       color: #a88f59 !important;
+       font-weight: bold;
+    }
+    /* ★★★ここまで★★★ */
+
+    /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
+    .main .block-container {
+        max-width: 700px;
+        padding: 3rem;
+        background-color: #fffef8;
+        border: 1px solid #d4c8b8;
+        border-radius: 5px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    .main .block-container::before {
+        content: '';
+        position: absolute;
+        top: 15px; left: 15px; right: 15px; bottom: 15px;
+        border: 2px double #d8c9b1;
+        border-radius: 3px;
+        pointer-events: none;
+    }
     
-    /* ★★★ ここからがボタンの修正箇所 ★★★ */
+    /* --- タイトル --- */
+    h1 {
+        text-align: center;
+        padding-bottom: 0.3em;
+        margin-bottom: 1em;
+        font-size: 3.2em;
+        letter-spacing: 1px;
+    }
+    
+    /* --- 説明文 --- */
+    .st-emotion-cache-1yycg8b p {
+        text-align: center;
+        font-size: 1em;
+    }
+    
+    /* --- サブタイトル --- */
+    h2 {
+        text-align: center;
+        margin-top: 2em;
+        margin-bottom: 1.5em;
+        font-size: 2.2em;
+    }
+
+    /* --- 料理名 --- */
+    h3 {
+        border-bottom: 1px dotted #b8b0a0;
+        padding-bottom: 0.5em;
+        margin-top: 1.5em;
+        margin-bottom: 1em;
+        font-size: 1.3em;
+    }
+    
+    /* --- 入力欄 --- */
+    .stTextArea textarea, .stTextInput>div>div>input {
+        border: 1px solid #c9c3b3 !important;
+        background-color: #fff !important;
+        border-radius: 3px;
+        padding: 10px !important;
+        font-size: 16px;
+        color: #4a4a4a !important;
+    }
+    
+    /* --- ボタン --- */
     .stButton>button {
         background-color: #a88f59 !important;
         color: white !important;
         border: 1px solid #a88f59 !important;
         border-radius: 5px;
-        font-family: 'Noto Serif JP', serif !important;
-        font-weight: 500 !important;
+        font-weight: 500;
         letter-spacing: 1px;
         padding: 12px 24px !important;
         font-size: 18px !important;
@@ -39,10 +112,20 @@ st.markdown(
         background-color: #8c7749 !important;
         border-color: #8c7749 !important;
     }
-    /* ★★★ ここまでがボタンの修正箇所 ★★★ */
-
-    details { border: 1px solid #e0d8c0; border-radius: 5px; padding: 1em; margin-bottom: 1em; background-color: rgba(255,255,255,0.3); }
-    details summary { font-weight: 700; font-size: 1.1em; cursor: pointer; }
+    
+    /* --- 結果表示（Expander） --- */
+    details {
+        border: 1px solid #e0d8c0;
+        border-radius: 5px;
+        padding: 1em;
+        margin-bottom: 1em;
+        background-color: rgba(255,255,255,0.3);
+    }
+    details summary {
+        font-weight: 700;
+        font-size: 1.1em;
+        cursor: pointer;
+    }
     </style>
     """,
     unsafe_allow_html=True,
