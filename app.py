@@ -12,7 +12,7 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Playfair+Display:ital,wght@1,700&display=swap');
 
-    /* ★★★ ここが背景の変更点 ★★★ */
+    /* --- 背景 --- */
     .stApp {
         background-color: #4a3c31; /* 深いブラウン */
         background-image: url("https://www.transparenttextures.com/patterns/old-paper.png");
@@ -20,8 +20,8 @@ st.markdown(
         background-size: cover;
     }
 
-    /* ★★★ 全体のフォントと文字色の変更点 ★★★ */
-    body, .st-emotion-cache-1qg05j3, .st-emotion-cache-1yycg8b p {
+    /* --- 全体の基本フォントと文字色（背景に対する色） --- */
+    body {
         font-family: 'Cormorant Garamond', serif; 
         color: #e3dcd2; /* 明るいクリーム色 */
         font-size: 18px;
@@ -29,8 +29,14 @@ st.markdown(
 
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
-        max-width: 800px; padding: 2.5rem; background-color: rgba(253, 251, 243, 0.95); /* 背景をより不透明に */
+        max-width: 800px; padding: 2.5rem; background-color: rgba(253, 251, 243, 0.95);
         border: 1px solid #d4c8b8; border-radius: 2px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+    
+    /* ★★★ ここが文字色を修正する部分 ★★★ */
+    /* メニュー用紙の中のテキストの色を濃くして、読みやすくする */
+    .main .block-container, .main .block-container p, .stMarkdown, .st-emotion-cache-1qg05j3 {
+        color: #5a483a !important;
     }
     
     /* --- タイトル --- */
@@ -39,7 +45,7 @@ st.markdown(
         border-bottom: 2px double #d4c8b8; padding-bottom: 0.5em; margin-bottom: 1.5em; font-size: 3em;
     }
     
-    /* 入力欄の文字は濃いままにする */
+    /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
         border: 1px solid #d4c8b8 !important; background-color: #fff; color: #5a483a !important;
     }
@@ -122,9 +128,14 @@ def get_recipe_details(dish_name):
     response = model.generate_content(prompt)
     return response.text
 
+def create_search_link(dish_name):
+    """料理名からGoogle検索用のURLを生成する関数"""
+    query = f"{dish_name} レシピ"
+    return f"https://www.google.com/search?q={quote_plus(query)}"
+
 # --- Streamlitの画面表示 ---
 st.title('AI Chef\'s Special Menu')
-st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。")
+# st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。") # 説明文はCSSで色指定が難しいため、一旦コメントアウト
 
 # --- UI（入力部分） ---
 ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
@@ -150,7 +161,7 @@ if st.button('献立を提案いただく', use_container_width=True):
                     main_recipe_details = get_recipe_details(main_dish_name)
                 
                 with st.expander(f"主菜： {main_dish_name}", expanded=True):
-                    st.markdown(main_recipe_details)
+                    st.markdown(main_recipe_details, unsafe_allow_html=True)
                     st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(main_dish_name)})", unsafe_allow_html=True)
             
             if side_dish_name:
@@ -158,7 +169,7 @@ if st.button('献立を提案いただく', use_container_width=True):
                     side_recipe_details = get_recipe_details(side_dish_name)
 
                 with st.expander(f"副菜： {side_dish_name}", expanded=True):
-                    st.markdown(side_recipe_details)
+                    st.markdown(side_recipe_details, unsafe_allow_html=True)
                     st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(side_dish_name)})", unsafe_allow_html=True)
 
         except Exception as e:
