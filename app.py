@@ -1,8 +1,8 @@
-
 import streamlit as st
 import google.generativeai as genai
 import json
 from urllib.parse import quote_plus
+import time
 
 # --- アプリの基本設定 ---
 st.set_page_config(page_title="AI Chef's Special Menu", page_icon="📜", layout="centered")
@@ -17,17 +17,37 @@ st.markdown(
     .main .block-container::before { content: ''; position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; border: 2px double #d8c9b1; border-radius: 3px; pointer-events: none; }
     body, p, h1, h2, h3, h4, h5, h6, label, summary, .stMarkdown, div[data-testid="stMarkdownContainer"] p { color: #4a4a4a !important; font-family: 'Noto Serif JP', serif; }
     h1, h2 { color: #a88f59 !important; font-family: 'Playfair Display', serif !important; font-style: italic; }
+    a { color: #a88f59 !important; font-weight: bold; }
     h1 { text-align: center; padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px; }
     h2 { text-align: center; margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em; }
     .stTextArea textarea, .stTextInput>div>div>input { border: 1px solid #c9c3b3 !important; background-color: #fff !important; border-radius: 3px; padding: 10px !important; font-size: 16px; color: #4a4a4a !important; }
-    .stButton>button { background-color: #a88f59; color: white !important; border: 1px solid #a88f59; border-radius: 5px; font-weight: 500; letter-spacing: 1px; padding: 12px 24px; font-size: 18px; transition: background-color 0.3s ease; }
-    .stButton>button:hover { background-color: #8c7749; border-color: #8c7749; }
+    
+    /* ★★★ ここからがボタンの修正箇所 ★★★ */
+    .stButton>button {
+        background-color: #a88f59 !important;
+        color: white !important;
+        border: 1px solid #a88f59 !important;
+        border-radius: 5px;
+        font-family: 'Noto Serif JP', serif !important;
+        font-weight: 500 !important;
+        letter-spacing: 1px;
+        padding: 12px 24px !important;
+        font-size: 18px !important;
+        transition: background-color 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #8c7749 !important;
+        border-color: #8c7749 !important;
+    }
+    /* ★★★ ここまでがボタンの修正箇所 ★★★ */
+
     details { border: 1px solid #e0d8c0; border-radius: 5px; padding: 1em; margin-bottom: 1em; background-color: rgba(255,255,255,0.3); }
     details summary { font-weight: 700; font-size: 1.1em; cursor: pointer; }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
 
 # --- APIキーの設定 ---
 try:
@@ -40,31 +60,16 @@ if api_key:
     genai.configure(api_key=api_key)
 
 # --- 関数定義 ---
-def generate_full_menu(ingredients, request_text):
-    """AIに献立名とレシピを一度に考えてもらう関数"""
+def generate_menu_names(ingredients, request_text):
     model = genai.GenerativeModel('gemini-1.5-flash')
-    
-    # ★★★ ここが改善点！AIへのお願いを一度にまとめる ★★★
     prompt = f"""
     あなたは格式高いレストランのシェフです。以下の【使用する食材】を創造的に活かし、【お客様からのご要望】に沿った献立を考えてください。
-    ご要望に品数の指定がない場合は、主菜1品と副菜1品を基本とします。
+    ご要望に品数の指定がない場合は、主菜1品と副菜1品を基本としてください。
     回答は、必ず以下のJSONフォーマットで返してください。説明や挨拶は絶対に含めないでください。
-    各料理には、料理名（name）、種類（type）、材料リスト（materials）、作り方の手順リスト（steps）を含めてください。
-
     {{
       "menu": [
-        {{
-          "type": "主菜",
-          "name": "料理名",
-          "materials": ["材料1 (分量)", "材料2 (分量)"],
-          "steps": ["手順1", "手順2", "手順3"]
-        }},
-        {{
-          "type": "副菜",
-          "name": "料理名",
-          "materials": ["材料1 (分量)", "材料2 (分量)"],
-          "steps": ["手順1", "手順2"]
-        }}
+        {{ "type": "（主菜、副菜、汁物など）", "name": "料理名" }},
+        {{ "type": "（主菜、副菜、汁物など）", "name": "料理名" }}
       ]
     }}
     ---
@@ -78,8 +83,24 @@ def generate_full_menu(ingredients, request_text):
     cleaned_response = response.text.replace("```json", "").replace("```", "").strip()
     return json.loads(cleaned_response)
 
+def get_recipe_details(dish_name):
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    prompt = f"""
+    あなたはプロの料理家です。「{dish_name}」の作り方を、以下のフォーマットで、具体的かつ分かりやすく記述してください。
+    
+    **材料:**
+    - 材料1 (分量)
+    - 材料2 (分量)
+
+    **作り方:**
+    1. 手順1
+    2. 手順2
+    3. 手順3
+    """
+    response = model.generate_content(prompt)
+    return response.text
+
 def create_search_link(dish_name):
-    """料理名からGoogle検索用のURLを生成する関数"""
     query = f"{dish_name} レシピ"
     return f"https://www.google.com/search?q={quote_plus(query)}"
 
@@ -106,8 +127,8 @@ if submit_button:
         st.info('まずは、ご使用になる食材をお聞かせください。')
     else:
         try:
-            with st.spinner('シェフが特別な献立を考案しております... 📜'):
-                menu_data = generate_full_menu(ingredients, user_request)
+            with st.spinner('シェフがインスピレーションを得ています... 📜'):
+                menu_data = generate_menu_names(ingredients, user_request)
                 menu_list = menu_data.get("menu", [])
 
             st.header("本日のおすすめ")
@@ -116,22 +137,17 @@ if submit_button:
                 st.warning("ご要望に沿った献立の提案が難しいようです。条件を変えてお試しください。")
             
             for dish in menu_list:
+                time.sleep(1) # APIに連続でリクエストしないよう、1秒待つ
                 dish_type = dish.get("type", "一品")
                 dish_name = dish.get("name", "名称不明")
-                materials = dish.get("materials", [])
-                steps = dish.get("steps", [])
 
                 if dish_name != "名称不明":
+                    with st.spinner(f'「{dish_name}」のレシピを準備しています...'):
+                        recipe_details = get_recipe_details(dish_name)
+                    
                     with st.expander(f"{dish_type}： {dish_name}", expanded=True):
-                        st.markdown("**材料:**")
-                        for m in materials:
-                            st.markdown(f"- {m}")
-                        
-                        st.markdown("\n**作り方:**")
-                        for i, s in enumerate(steps, 1):
-                            st.markdown(f"{i}. {s}")
-                        
-                        st.markdown(f"\n**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(dish_name)})", unsafe_allow_html=True)
+                        st.markdown(recipe_details, unsafe_allow_html=True)
+                        st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(dish_name)})", unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"申し訳ございません、エラーが発生いたしました: {e}")
