@@ -32,15 +32,39 @@ st.markdown(
         border: 2px double #d8c9b1; border-radius: 3px; pointer-events: none;
     }
 
-    /* --- 全体のフォントと文字色 --- */
-    body, p, ol, ul, li {
-        font-family: 'Noto Serif JP', serif; color: #4a4a4a; font-size: 17px; line-height: 1.8;
+    /* ★★★ ここからがダークモード対策 ★★★ */
+    /* 全ての文字要素に色の固定を指示 */
+    h1, h2, h3, h4, h5, h6, p, li, label, .st-emotion-cache-1qg05j3, .st-emotion-cache-1yycg8b p {
+        color: inherit !important;
     }
+    .main .block-container, .main .block-container p, .stMarkdown {
+        color: #4a4a4a !important;
+    }
+    h1 {
+        color: #a88f59 !important;
+    }
+    h2 {
+       color: #a88f59 !important;
+    }
+    h3 {
+       color: #3d3d3d !important;
+    }
+    a {
+       color: #a88f59 !important;
+    }
+    /* ★★★ ここまでがダークモード対策 ★★★ */
 
+
+    /* --- 全体のフォント --- */
+    body {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 17px;
+        line-height: 1.8;
+    }
+    
     /* --- タイトル --- */
     h1 {
         font-family: 'Playfair Display', serif; font-style: italic;
-        color: #a88f59 !important; /* ← ダークモード対策で !important を追加 */
         text-align: center;
         padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px;
     }
@@ -52,26 +76,27 @@ st.markdown(
 
     /* --- サブタイトル --- */
     h2 {
-        text-align: center; color: #a88f59; font-family: 'Playfair Display', serif; font-style: italic;
+        text-align: center; font-family: 'Playfair Display', serif; font-style: italic;
         margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em;
     }
 
     /* --- 料理名 --- */
     h3 {
-        color: #3d3d3d; font-weight: 700; border-bottom: 1px dotted #b8b0a0;
+        font-weight: 700; border-bottom: 1px dotted #b8b0a0;
         padding-bottom: 0.5em; margin-top: 1.5em; margin-bottom: 1em; font-size: 1.3em;
     }
 
     /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
         border: 1px solid #c9c3b3 !important; background-color: #fff; border-radius: 3px;
-        padding: 10px !important; font-size: 16px; font-family: 'Noto Serif JP', serif; color: #3d3d3d;
+        padding: 10px !important; font-size: 16px; font-family: 'Noto Serif JP', serif;
     }
-    .st-emotion-cache-1qg05j3 { color: #4a4a4a; }
 
     /* --- ボタン --- */
     .stButton>button {
-        background-color: #a88f59; color: white; border: 1px solid #a88f59; border-radius: 5px;
+        background-color: #a88f59;
+        color: white !important; /* 文字色も固定 */
+        border: 1px solid #a88f59; border-radius: 5px;
         font-family: 'Noto Serif JP', serif; font-weight: 500; letter-spacing: 1px;
         padding: 12px 24px; font-size: 18px; transition: background-color 0.3s ease;
     }
@@ -85,7 +110,7 @@ st.markdown(
         background-color: rgba(255,255,255,0.3);
     }
     details summary {
-        font-weight: 700; font-size: 1.1em; color: #3d3d3d; cursor: pointer;
+        font-weight: 700; font-size: 1.1em; cursor: pointer;
     }
     </style>
     """,
@@ -152,12 +177,20 @@ def create_search_link(dish_name):
 st.title('AI Chef\'s Special Menu')
 st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。")
 
-# --- UI（入力部分） ---
-ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
-user_request = st.text_input('その他、ご要望はございますか？（任意）', placeholder='例: 3品ほしい。一品は汁物')
+# --- UI（入力部分）をフォームで囲む ---
+with st.form(key='my_form'):
+    ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
+    user_request = st.text_input('その他、ご要望はございますか？（任意）', placeholder='例: 3品ほしい。一品は汁物')
+    
+    # ボタンを2列に配置
+    col1, col2 = st.columns([3, 1]) # 提案ボタンの幅をクリアボタンの3倍に
+    with col1:
+        submit_button = st.form_submit_button(label='献立を提案いただく')
+    with col2:
+        clear_button = st.form_submit_button(label='クリア')
 
 # --- 検索実行と結果表示 ---
-if st.button('献立を提案いただく', use_container_width=True):
+if submit_button: # 提案ボタンが押された時だけ実行
     if not api_key:
         st.error("恐れ入りますが、先にAPIキーの設定をお願いいたします。")
     elif not ingredients:
