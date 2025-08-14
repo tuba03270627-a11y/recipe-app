@@ -12,7 +12,6 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,700&display=swap');
 
-    /* ★★★ここからが修正箇所★★★ */
     /* アプリ全体の背景を、メニュー用紙の色（明るい色）に統一 */
     .stApp {
         background-color: #f5f0e1; /* 薄いベージュ */
@@ -32,7 +31,6 @@ st.markdown(
        color: #a88f59 !important;
        font-weight: bold;
     }
-    /* ★★★ここまで★★★ */
 
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
@@ -85,13 +83,15 @@ st.markdown(
         font-size: 1.3em;
     }
     
+    /* ★★★ ここが修正箇所 ★★★ */
     /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
         border: 1px solid #c9c3b3 !important;
-        background-color: #fff;
+        background-color: #fff !important;
         border-radius: 3px;
         padding: 10px !important;
         font-size: 16px;
+        color: #4a4a4a !important; /* 入力文字の色を濃い色に固定 */
     }
     
     /* --- ボタン --- */
