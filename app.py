@@ -11,74 +11,152 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Playfair+Display:ital,wght@1,700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400&display=swap');
 
     /* --- 背景 --- */
     .stApp {
-        background-color: #4a3c31; /* 深いブラウン */
-        background-image: url("https://www.transparenttextures.com/patterns/old-paper.png");
-        background-attachment: fixed;
-        background-size: cover;
+        background-color: #f5f0e1; /* 薄いベージュ */
     }
-
-    /* ★★★ ここからが修正箇所 ★★★ */
 
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
-        max-width: 800px; padding: 2.5rem; background-color: rgba(253, 251, 243, 0.95);
-        border: 1px solid #d4c8b8; border-radius: 2px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-        /* この中の文字はすべて濃い色にする */
-        color: #5a483a !important; 
+        max-width: 700px;
+        padding: 3rem;
+        background-color: #fffef8; /* ほぼ白 */
+        border: 1px solid #e0d8c0;
+        border-radius: 5px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        position: relative; /* 枠線の基準点 */
     }
-    
+
+    /* --- メニュー用紙の装飾的な枠線（CSSだけで実現）--- */
+    .main .block-container::before,
+    .main .block-container::after {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 1px solid #d8c9b1;
+        border-radius: 3px;
+        pointer-events: none;
+    }
+    .main .block-container::before {
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        border: 1px solid #e5dfd1;
+        border-radius: 1px;
+    }
+
+    /* --- 全体のフォントと文字色 --- */
+    body, .st-emotion-cache-1qg05j3, .st-emotion-cache-1yycg8b p {
+        font-family: 'Noto Serif JP', serif; /* 和風にも合う上品なセリフ体 */
+        color: #3d3d3d;
+        font-size: 17px;
+        line-height: 1.7;
+    }
+
     /* --- タイトル --- */
     h1 {
-        font-family: 'Playfair Display', serif; font-style: italic; 
-        color: #e3dcd2; /* 明るいクリーム色に変更 */
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        color: #a88f59; /* ゴールドブラウン */
         text-align: center;
-        border-bottom: 2px double rgba(227, 220, 210, 0.5); /* 線の色も明るく */
-        padding-bottom: 0.5em; margin-bottom: 1em; font-size: 3em;
-    }
-    
-    /* アプリの説明文（タイトル下）の色 */
-    .st-emotion-cache-1yycg8b p {
-        color: #e3dcd2; /* 明るいクリーム色に変更 */
-        text-align: center;
+        padding-bottom: 0.3em;
+        margin-bottom: 1em;
+        font-size: 3.5em;
+        letter-spacing: 1px;
     }
 
-    /* ★★★ ここまでが修正箇所 ★★★ */
-    
-    /* --- 入力欄のラベル --- */
-    .st-emotion-cache-1qg05j3 {
-        color: #5a483a !important; /* ラベルの色を濃く固定 */
+    /* --- サブタイトル --- */
+    h2 {
+        text-align: center;
+        color: #a88f59;
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        margin-top: 2em;
+        margin-bottom: 1em;
+        font-size: 2.5em;
     }
 
-    /* 入力欄 */
+    /* --- 料理名 --- */
+    h3 {
+        color: #3d3d3d;
+        font-weight: bold;
+        border-bottom: 1px dotted #b8b0a0;
+        padding-bottom: 0.3em;
+        margin-top: 1.5em;
+        margin-bottom: 0.8em;
+        font-size: 1.3em;
+    }
+
+    /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
-        border: 1px solid #d4c8b8 !important; background-color: #fff; color: #5a483a !important;
+        border: 1px solid #c9c3b3 !important;
+        background-color: #fff;
+        border-radius: 3px;
+        padding: 10px !important;
+        font-size: 16px;
+        color: #3d3d3d;
     }
 
     /* --- ボタン --- */
     .stButton>button {
-        background-color: #8c7853; color: white; border: 1px solid #8c7853; border-radius: 2px;
-        font-family: 'Cormorant Garamond', serif; font-weight: bold; letter-spacing: 1px;
+        background-color: #a88f59;
+        color: white;
+        border: 1px solid #a88f59;
+        border-radius: 5px;
+        font-family: 'Noto Serif JP', serif;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        padding: 10px 20px;
+        font-size: 18px;
+        transition: background-color 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #7a6843; border-color: #7a6843;
+        background-color: #8c7749;
+        border-color: #8c7749;
     }
-    
-    /* --- 結果表示 --- */
-    h2 {
-        text-align: center; color: #8c7853; font-family: 'Playfair Display', serif; font-style: italic;
-        margin-top: 2em; font-size: 2.2em;
+
+    /* --- リンク --- */
+    a {
+        color: #a88f59 !important;
+        font-weight: bold;
+        text-decoration: none;
     }
-    h3 {
-        color: #5a483a; font-weight: bold; border: none; text-align: center;
-        margin-top: 1.5em; letter-spacing: 0.5px;
+    a:hover {
+        text-decoration: underline;
     }
-    a { color: #8c7853 !important; font-weight: bold; }
-    .st-emotion-cache-1r6slb0 { /* 結果表示コンテナの余白などをリセット */
-        background-color: transparent; border: none; padding: 0 !important;
+
+    /* --- expander --- */
+    details {
+        border: 1px solid #e0d8c0;
+        border-radius: 5px;
+        padding: 1em;
+        margin-bottom: 1em;
     }
+    details summary {
+        font-weight: bold;
+        color: #3d3d3d;
+        cursor: pointer;
+        list-style: none; /* Remove default arrow */
+        padding-bottom: 0.5em;
+        border-bottom: 1px dotted #b8b0a0;
+    }
+    details summary::-webkit-details-marker {
+        display: none; /* Hide default arrow Chrome/Safari */
+    }
+    details summary::before {
+        content: '▼ '; /* Custom arrow */
+        color: #a88f59;
+    }
+    details p {
+        padding-top: 0.5em;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -113,14 +191,19 @@ def generate_menu_names(ingredients, request_text):
     {ingredients}
     """
     response = model.generate_content(prompt)
-    cleaned_response = response.text.replace("```json", "").replace("```", "").strip()
-    return json.loads(cleaned_response)
+    cleaned_response = response.text.replace("````json", "").replace("`", "").strip()
+    try:
+        return json.loads(cleaned_response)
+    except json.JSONDecodeError as e:
+        st.error(f"JSONデコードエラー: {e}\nレスポンス内容: {cleaned_response}")
+        return {"main_dish": "提案に失敗しました", "side_dish": "提案に失敗しました"}
+
 
 def get_recipe_details(dish_name):
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
     あなたはプロの料理家です。「{dish_name}」の作り方を、以下のフォーマットで、具体的かつ分かりやすく記述してください。
-    
+
     **材料:**
     - 材料1 (分量)
     - 材料2 (分量)
@@ -135,7 +218,7 @@ def get_recipe_details(dish_name):
 
 def create_search_link(dish_name):
     query = f"{dish_name} レシピ"
-    return f"https://www.google.com/search?q={quote_plus(query)}"
+    return f"[https://www.google.com/search?q=](https://www.google.com/search?q=){quote_plus(query)}"
 
 # --- Streamlitの画面表示 ---
 st.title('AI Chef\'s Special Menu')
@@ -158,16 +241,16 @@ if st.button('献立を提案いただく', use_container_width=True):
                 main_dish_name = menu.get("main_dish")
                 side_dish_name = menu.get("side_dish")
 
-            st.header("本日の一皿")
-            
+            st.header("本日のおすすめ")
+
             if main_dish_name:
                 with st.spinner(f'「{main_dish_name}」のレシピを準備しています...'):
                     main_recipe_details = get_recipe_details(main_dish_name)
-                
+
                 with st.expander(f"主菜： {main_dish_name}", expanded=True):
                     st.markdown(main_recipe_details, unsafe_allow_html=True)
                     st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(main_dish_name)})", unsafe_allow_html=True)
-            
+
             if side_dish_name:
                 with st.spinner(f'「{side_dish_name}」のレシピを準備しています...'):
                     side_recipe_details = get_recipe_details(side_dish_name)
