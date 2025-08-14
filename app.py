@@ -37,35 +37,13 @@ st.markdown(
         font-family: 'Noto Serif JP', serif; color: #4a4a4a; font-size: 17px; line-height: 1.8;
     }
 
-    /* ★★★ ここからがタイトルの変更点 ★★★ */
+    /* --- タイトル --- */
     h1 {
-        font-family: 'Playfair Display', serif; font-style: italic; color: #a88f59; text-align: center;
+        font-family: 'Playfair Display', serif; font-style: italic;
+        color: #a88f59 !important; /* ← ダークモード対策で !important を追加 */
+        text-align: center;
         padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
-    
-    /* タイトルの前の飾り */
-    h1::before {
-        content: ' 🍴 '; /* シンプルな飾り文字 */
-        font-family: 'Times New Roman', serif; /* 飾りに使うフォント */
-        font-size: 1.5em;
-        color: #c4b395;
-        margin-right: 0.5em;
-        transform: scaleX(-1); /* 文字を反転させて左右対称に見せる */
-    }
-
-    /* タイトルの後の飾り */
-    h1::after {
-        content: ' 🍴 '; /* シンプルな飾り文字 */
-        font-family: 'Times New Roman', serif; /* 飾りに使うフォント */
-        font-size: 1.5em;
-        color: #c4b395;
-        margin-left: 0.5em;
-    }
-    /* ★★★ ここまでがタイトルの変更点 ★★★ */
     
     /* --- 説明文 --- */
     .st-emotion-cache-1yycg8b p {
@@ -127,9 +105,7 @@ if api_key:
 
 # --- 関数定義 ---
 def generate_menu_names(ingredients, request_text):
-    """AIに献立名を考えてもらう関数（可変長対応）"""
     model = genai.GenerativeModel('gemini-1.5-flash')
-    
     prompt = f"""
     あなたは格式高いレストランのシェフです。以下の【使用する食材】を創造的に活かし、【お客様からのご要望】に沿った献立を考えてください。
     ご要望に品数の指定がない場合は、主菜1品と副菜1品を基本としてください。
@@ -152,7 +128,6 @@ def generate_menu_names(ingredients, request_text):
     return json.loads(cleaned_response)
 
 def get_recipe_details(dish_name):
-    """AIに特定の料理のレシピを教えてもらう関数"""
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
     あなたはプロの料理家です。「{dish_name}」の作り方を、以下のフォーマットで、具体的かつ分かりやすく記述してください。
@@ -170,7 +145,6 @@ def get_recipe_details(dish_name):
     return response.text
 
 def create_search_link(dish_name):
-    """料理名からGoogle検索用のURLを生成する関数"""
     query = f"{dish_name} レシピ"
     return f"https://www.google.com/search?q={quote_plus(query)}"
 
