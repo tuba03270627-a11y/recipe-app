@@ -49,7 +49,7 @@ st.markdown(
     
     /* タイトルの前の飾り */
     h1::before {
-        content: ' L '; /* シンプルな飾り文字 */
+        content: ' 🍴 '; /* シンプルな飾り文字 */
         font-family: 'Times New Roman', serif; /* 飾りに使うフォント */
         font-size: 1.5em;
         color: #c4b395;
@@ -59,7 +59,7 @@ st.markdown(
 
     /* タイトルの後の飾り */
     h1::after {
-        content: ' J '; /* シンプルな飾り文字 */
+        content: ' 🍴 '; /* シンプルな飾り文字 */
         font-family: 'Times New Roman', serif; /* 飾りに使うフォント */
         font-size: 1.5em;
         color: #c4b395;
