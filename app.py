@@ -4,21 +4,14 @@ import json
 from urllib.parse import quote_plus
 
 # --- アプリの基本設定 ---
-st.set_page_config(page_title="AIシェフの献立提案", page_icon="🍳")
-
-# ジャンルの選択肢を定義
-GENRES = ["ジャンルを問わない", "和食", "洋食", "中華", "イタリアン", "韓国料理", "エスニック"]
+st.set_page_config(page_title="AIシェフの献立提案", page_icon="🍳", layout="wide")
 
 # --- APIキーの設定 ---
-# Streamlit CloudのSecretsからAPIキーを安全に読み込む
-api_key = st.secrets.get("GEMINI_API_KEY")
-
-if not api_key:
-    st.sidebar.error("StreamlitのSecretsにAPIキーが設定されていません。")
-    # ローカルテスト用に、サイドバーからの入力も可能にしておく
-    api_key_input = st.sidebar.text_input("または、ここにAPIキーを直接入力:", type="password")
-    if api_key_input:
-        api_key = api_key_input
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+except (FileNotFoundError, KeyError):
+    st.sidebar.warning("デプロイする際は、Streamlitのシークレット機能でAPIキーを設定してください。")
+    api_key = st.sidebar.text_input("ここにGoogle AI StudioのAPIキーを貼り付けてください:", type="password", key="api_key_input")
 
 if api_key:
     genai.configure(api_key=api_key)
@@ -29,22 +22,20 @@ def create_search_link(dish_name):
     query = f"{dish_name} レシピ"
     return f"https://www.google.com/search?q={quote_plus(query)}"
 
-def generate_menu(ingredients, genre):
+def generate_menu(ingredients, request_text):
     """AIに献立を考えてもらう関数"""
     model = genai.GenerativeModel('gemini-1.5-flash')
     
-    genre_instruction = f"ジャンルは「{genre}」でお願いします。" if genre != "ジャンルを問わない" else "ジャンルは問いません。"
-
     prompt = f"""
-    あなたはプロの料理家です。以下の【使用する食材】を活かし、【ジャンル】に沿った献立（主菜1品、副菜1品）を考えてください。
+    あなたはプロの料理家です。以下の【使用する食材】をなるべく使いつつ、【ユーザーの希望】に沿った献立（主菜1品、副菜1品）を考えてください。
     回答は、必ず以下のJSONフォーマットで、料理名のみを返してください。説明や挨拶は絶対に含めないでください。
     {{
       "main_dish": "主菜の料理名",
       "side_dish": "副菜の料理名"
     }}
     ---
-    【ジャンル】
-    {genre_instruction}
+    【ユーザーの希望】
+    {request_text if request_text else "特になし"}
 
     【使用する食材】
     {ingredients}
@@ -56,39 +47,47 @@ def generate_menu(ingredients, genre):
 
 # --- Streamlitの画面表示 ---
 st.title('🍳 AIシェフの献立提案')
-st.write("使いたい食材と希望のジャンルを選ぶと、AIが献立を考え、ウェブ上のレシピをすぐに検索できるようにします。")
+st.write("使いたい食材と、どんな料理が食べたいかの希望を入力してください。AIがあなただけの献立を提案します。")
 
 # --- UI（入力部分） ---
-selected_genre = st.selectbox("お料理のジャンルを選んでください", GENRES)
-ingredients = st.text_area('使いたい食材をスペースやカンマで区切って入力してください', placeholder='例: 豚肉 玉ねぎ 人参 卵')
+# ★★★ UI改善点①：2列レイアウト ★★★
+col1, col2 = st.columns(2)
+with col1:
+    ingredients = st.text_area('使いたい食材をスペースやカンマで区切って入力してください', placeholder='例: 豚肉 玉ねぎ 人参 卵')
+with col2:
+    user_request = st.text_input('希望はありますか？（任意）', placeholder='例: 中華で、さっぱりしたもの')
 
 # --- 検索実行と結果表示 ---
-if st.button('献立を考えてもらう！'):
+if st.button('献立を考えてもらう！', use_container_width=True):
     if not api_key:
-        st.error("APIキーが設定されていません。")
+        st.error("APIキーを設定してください。サイドバーから入力できます。")
     elif not ingredients:
         st.info('まずは使いたい食材を入力してくださいね。')
     else:
         with st.spinner('AIシェフが腕によりをかけて考案中です... 🍳'):
             try:
-                menu = generate_menu(ingredients, selected_genre)
+                menu = generate_menu(ingredients, user_request)
                 main_dish_name = menu.get("main_dish")
                 side_dish_name = menu.get("side_dish")
 
                 st.header("本日の献立案はこちらです！")
-
-                if main_dish_name:
-                    st.subheader(f"主菜： {main_dish_name}")
-                    st.markdown(f"▶ **[このレシピの作り方をウェブで検索する]({create_search_link(main_dish_name)})**")
                 
-                st.markdown("---")
+                # ★★★ UI改善点②：結果表示も2列レイアウト ★★★
+                res_col1, res_col2 = st.columns(2)
 
-                if side_dish_name:
-                    st.subheader(f"副菜： {side_dish_name}")
-                    st.markdown(f"▶ **[このレシピの作り方をウェブで検索する]({create_search_link(side_dish_name)})**")
+                with res_col1:
+                    # ★★★ UI改善点③：カード風の表示 ★★★
+                    with st.container(border=True):
+                        st.subheader(f"主菜： {main_dish_name or '提案なし'}")
+                        if main_dish_name:
+                            st.markdown(f"▶ **[作り方をウェブで検索する]({create_search_link(main_dish_name)})**")
+
+                with res_col2:
+                    with st.container(border=True):
+                        st.subheader(f"副菜： {side_dish_name or '提案なし'}")
+                        if side_dish_name:
+                            st.markdown(f"▶ **[作り方をウェブで検索する]({create_search_link(side_dish_name)})**")
 
             except Exception as e:
                 st.error(f"エラーが発生しました: {e}")
-                st.error("AIからの回答を解析できませんでした。サーバーが混み合っているか、予期せぬ形式で返ってきた可能性があります。少し待ってから、もう一度試してみてください。")
-
-
+                st.error("AIからの回答を解析できませんでした。もう一度試してみてください。")
