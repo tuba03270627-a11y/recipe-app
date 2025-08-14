@@ -3,68 +3,86 @@ import google.generativeai as genai
 import json
 from urllib.parse import quote_plus
 
-st.markdown(
-    """
+"""
     <style>
-    /* ページ全体の背景と文字色 */
+    /* ページ全体の背景 */
     .stApp {
-        background-color: #F5F5F5; /* 上品なオフホワイト */
+        background-color: #f8f8f8; /* より明るい背景 */
     }
 
     /* メインコンテンツの文字色 */
     body {
-        color: #363636; /* ダークグレー */
-        font-family: 'Helvetica Neue', 'Arial', sans-serif;
+        color: #333; /* より濃い文字色 */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* モダンなフォント */
+        -webkit-font-smoothing: antialiased; /* 文字を滑らかに */
     }
 
-    /* タイトルのスタイル */
+    /* タイトル */
     h1 {
-        color: #DAA520; /* ゴールド */
-        font-family: 'Garamond', serif;
+        color: #c0a377; /* 上品なゴールド */
+        font-family: 'Playfair Display', serif; /* 高級感のあるフォント */
         text-align: center;
-        border-bottom: 2px solid #DAA520;
-        padding-bottom: 10px;
+        border-bottom: 1px solid #c0a377;
+        padding-bottom: 0.5em;
+        margin-bottom: 1em;
+        font-size: 2.5em;
     }
 
-    /* 入力欄のラベル */
-    .st-emotion-cache-1qg05j3 {
-        color: #363636 !important;
+    /* サブタイトルなど */
+    h2, h3, h4, h5, h6 {
+        color: #555;
         font-weight: bold;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
     }
-    
-    /* ボタンのスタイル */
+
+    /* テキスト入力とテキストエリア */
+    .stTextArea textarea, .stTextInput>div>div>input {
+        border: 1px solid #ddd !important;
+        border-radius: 0.5em;
+        padding: 0.75em !important;
+        font-size: 1em;
+    }
+
+    /* ボタン */
     .stButton>button {
-        background-color: #363636; /* ダークグレー */
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 24px;
-        font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: all 0.2s;
+        background-color: #333;
+        color: white !important;
+        border: 1px solid #333 !important;
+        border-radius: 0.5em;
+        padding: 0.75em 1.5em !important;
+        font-weight: 500 !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: all 0.2s ease-in-out;
+        font-size: 1em !important;
     }
     .stButton>button:hover {
-        background-color: #DAA520;
-        color: #363636;
+        background-color: #c0a377;
+        border-color: #c0a377 !important;
+        color: #333 !important;
         transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
-    /* 結果表示のカード */
+    /* 結果表示のコンテナ */
     .st-emotion-cache-1r6slb0 {
-        background-color: white;
-        border-radius: 10px;
-        padding: 2em !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    
-    /* 結果の小見出し */
-    h3 {
-        color: #363636;
-        border-left: 5px solid #DAA520;
-        padding-left: 10px;
+        background-color: #fff;
+        border: 1px solid #eee;
+        border-radius: 0.5em;
+        padding: 1.5em !important;
+        margin-bottom: 1em !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    </style>
+    /* リンク */
+    a {
+        color: #c0a377 !important;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    """
     """,
     unsafe_allow_html=True,
 )
