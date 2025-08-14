@@ -13,7 +13,6 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,700&display=swap');
 
-    /* ★★★ここからが修正箇所★★★ */
     /* アプリ全体の背景を、メニュー用紙の色（明るい色）に統一 */
     .stApp {
         background-color: #f5f0e1; /* 薄いベージュ */
@@ -33,7 +32,6 @@ st.markdown(
        color: #a88f59 !important;
        font-weight: bold;
     }
-    /* ★★★ここまで★★★ */
 
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
@@ -96,22 +94,25 @@ st.markdown(
         color: #4a4a4a !important;
     }
     
+    /* ★★★ ここからがボタンの修正箇所 ★★★ */
     /* --- ボタン --- */
     .stButton>button {
         background-color: #a88f59 !important;
         color: white !important;
         border: 1px solid #a88f59 !important;
-        border-radius: 5px;
-        font-weight: 500;
-        letter-spacing: 1px;
+        border-radius: 5px !important;
+        font-family: 'Noto Serif JP', serif !important;
+        font-weight: 500 !important;
+        letter-spacing: 1px !important;
         padding: 12px 24px !important;
         font-size: 18px !important;
-        transition: background-color 0.3s ease;
+        transition: background-color 0.3s ease !important;
     }
     .stButton>button:hover {
         background-color: #8c7749 !important;
         border-color: #8c7749 !important;
     }
+    /* ★★★ ここまでがボタンの修正箇所 ★★★ */
     
     /* --- 結果表示（Expander） --- */
     details {
