@@ -12,16 +12,24 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:wght@700&display=swap');
 
-    /* ページ全体の背景とフォント */
+    /* ★★★ ここが背景画像を設定している部分 ★★★ */
     .stApp {
-        background-color: #fdfdfd; /* クリーンな白 */
-        font-family: 'Noto Sans JP', sans-serif; /* 日本語に適したモダンなフォント */
+        background-image: url("https://www.transparenttextures.com/patterns/concrete-wall.png");
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    /* メインコンテンツの文字色 */
+    body {
+        color: #333;
+        font-family: 'Noto Sans JP', sans-serif;
+        -webkit-font-smoothing: antialiased;
     }
 
     /* タイトル */
     h1 {
-        font-family: 'Playfair Display', serif; /* 高級感のあるセリフ体フォント */
-        color: #2c3e50; /* 落ち着いたダークブルー */
+        font-family: 'Playfair Display', serif;
+        color: #2c3e50;
         text-align: center;
         padding-bottom: 0.5em;
     }
@@ -39,11 +47,12 @@ st.markdown(
         padding: 12px !important;
         font-size: 16px;
         color: #2c3e50;
+        background-color: #ffffff; /* 入力欄の背景を白に */
     }
 
     /* ボタン */
     .stButton>button {
-        background-color: #2c3e50; /* ダークブルー */
+        background-color: #2c3e50;
         color: white;
         border: none;
         border-radius: 8px;
@@ -70,11 +79,12 @@ st.markdown(
 
     /* 結果表示のカード */
     .st-emotion-cache-1r6slb0 {
-        background-color: #ffffff;
-        border: 1px solid #ecf0f1;
+        background-color: rgba(255, 255, 255, 0.85); /* 背景を少し透過させて背景画像と馴染ませる */
+        backdrop-filter: blur(10px); /* すりガラス効果 */
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 10px;
         padding: 1.5em !important;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     
     /* 結果の小見出し（料理名） */
@@ -86,7 +96,7 @@ st.markdown(
 
     /* リンク */
     a {
-        color: #3498db !important; /* 明るい青 */
+        color: #3498db !important;
         text-decoration: none;
         font-weight: bold;
     }
