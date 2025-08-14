@@ -3,6 +3,72 @@ import google.generativeai as genai
 import json
 from urllib.parse import quote_plus
 
+st.markdown(
+    """
+    <style>
+    /* ページ全体の背景と文字色 */
+    .stApp {
+        background-color: #F5F5F5; /* 上品なオフホワイト */
+    }
+
+    /* メインコンテンツの文字色 */
+    body {
+        color: #363636; /* ダークグレー */
+        font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    }
+
+    /* タイトルのスタイル */
+    h1 {
+        color: #DAA520; /* ゴールド */
+        font-family: 'Garamond', serif;
+        text-align: center;
+        border-bottom: 2px solid #DAA520;
+        padding-bottom: 10px;
+    }
+
+    /* 入力欄のラベル */
+    .st-emotion-cache-1qg05j3 {
+        color: #363636 !important;
+        font-weight: bold;
+    }
+    
+    /* ボタンのスタイル */
+    .stButton>button {
+        background-color: #363636; /* ダークグレー */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+    }
+    .stButton>button:hover {
+        background-color: #DAA520;
+        color: #363636;
+        transform: translateY(-2px);
+    }
+
+    /* 結果表示のカード */
+    .st-emotion-cache-1r6slb0 {
+        background-color: white;
+        border-radius: 10px;
+        padding: 2em !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    /* 結果の小見出し */
+    h3 {
+        color: #363636;
+        border-left: 5px solid #DAA520;
+        padding-left: 10px;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # --- アプリの基本設定 ---
 st.set_page_config(page_title="AIシェフの献立提案", page_icon="🍳", layout="wide")
 
