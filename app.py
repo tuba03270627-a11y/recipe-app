@@ -7,7 +7,6 @@ from urllib.parse import quote_plus
 st.set_page_config(page_title="AIシェフの献立提案", page_icon="📜", layout="centered")
 
 # --- デザイン（CSS） ---
-# (前回と同じデザインを使用)
 st.markdown(
     """
     <style>
@@ -105,6 +104,11 @@ def get_recipe_details(dish_name):
     response = model.generate_content(prompt)
     return response.text
 
+def create_search_link(dish_name):
+    """料理名からGoogle検索用のURLを生成する関数"""
+    query = f"{dish_name} レシピ"
+    return f"https://www.google.com/search?q={quote_plus(query)}"
+
 # --- Streamlitの画面表示 ---
 st.title('AI Chef\'s Special Menu')
 st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。")
@@ -121,7 +125,6 @@ if st.button('献立を提案いただく', use_container_width=True):
         st.info('まずは、ご使用になる食材をお聞かせください。')
     else:
         try:
-            # 1. AIに献立名を考えてもらう
             with st.spinner('シェフがインスピレーションを得ています... 📜'):
                 menu = generate_menu_names(ingredients, user_request)
                 main_dish_name = menu.get("main_dish")
@@ -129,21 +132,23 @@ if st.button('献立を提案いただく', use_container_width=True):
 
             st.header("本日の一皿")
             
-            # 2. 主菜のレシピを取得して表示
             if main_dish_name:
                 with st.spinner(f'「{main_dish_name}」のレシピを準備しています...'):
                     main_recipe_details = get_recipe_details(main_dish_name)
                 
                 with st.expander(f"主菜： {main_dish_name}", expanded=True):
                     st.markdown(main_recipe_details)
+                    # ★★★ ここが改善点！★★★
+                    st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(main_dish_name)})")
             
-            # 3. 副菜のレシピを取得して表示
             if side_dish_name:
                 with st.spinner(f'「{side_dish_name}」のレシピを準備しています...'):
                     side_recipe_details = get_recipe_details(side_dish_name)
 
                 with st.expander(f"副菜： {side_dish_name}", expanded=True):
                     st.markdown(side_recipe_details)
+                    # ★★★ ここが改善点！★★★
+                    st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(side_dish_name)})")
 
         except Exception as e:
             st.error(f"申し訳ございません、エラーが発生いたしました: {e}")
