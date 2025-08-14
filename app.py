@@ -14,7 +14,7 @@ st.markdown(
 
     /* --- 背景 --- */
     .stApp {
-        background-color: #f5f0e1; /* 薄いベージュ */
+        background-color: #f5f0e1;
         background-image: url("https://www.transparenttextures.com/patterns/old-paper.png");
         background-attachment: fixed;
     }
@@ -37,11 +37,35 @@ st.markdown(
         font-family: 'Noto Serif JP', serif; color: #4a4a4a; font-size: 17px; line-height: 1.8;
     }
 
-    /* --- タイトル --- */
+    /* ★★★ ここからがタイトルの変更点 ★★★ */
     h1 {
         font-family: 'Playfair Display', serif; font-style: italic; color: #a88f59; text-align: center;
         padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+    
+    /* タイトルの前の飾り */
+    h1::before {
+        content: ' L '; /* シンプルな飾り文字 */
+        font-family: 'Times New Roman', serif; /* 飾りに使うフォント */
+        font-size: 1.5em;
+        color: #c4b395;
+        margin-right: 0.5em;
+        transform: scaleX(-1); /* 文字を反転させて左右対称に見せる */
+    }
+
+    /* タイトルの後の飾り */
+    h1::after {
+        content: ' J '; /* シンプルな飾り文字 */
+        font-family: 'Times New Roman', serif; /* 飾りに使うフォント */
+        font-size: 1.5em;
+        color: #c4b395;
+        margin-left: 0.5em;
+    }
+    /* ★★★ ここまでがタイトルの変更点 ★★★ */
     
     /* --- 説明文 --- */
     .st-emotion-cache-1yycg8b p {
@@ -106,7 +130,6 @@ def generate_menu_names(ingredients, request_text):
     """AIに献立名を考えてもらう関数（可変長対応）"""
     model = genai.GenerativeModel('gemini-1.5-flash')
     
-    # ★★★ ここが改善点！AIへのお願いを柔軟に変更 ★★★
     prompt = f"""
     あなたは格式高いレストランのシェフです。以下の【使用する食材】を創造的に活かし、【お客様からのご要望】に沿った献立を考えてください。
     ご要望に品数の指定がない場合は、主菜1品と副菜1品を基本としてください。
@@ -173,7 +196,6 @@ if st.button('献立を提案いただく', use_container_width=True):
 
             st.header("本日のおすすめ")
             
-            # ★★★ ここが改善点！リストの品数だけループして表示 ★★★
             if not menu_list:
                 st.warning("ご要望に沿った献立の提案が難しいようです。条件を変えてお試しください。")
             
