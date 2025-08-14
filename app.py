@@ -1,96 +1,95 @@
 import streamlit as st
-import requests
+import google.generativeai as genai
+import json
+from urllib.parse import quote_plus
 
-# 主菜・副菜のカテゴリIDを定義
-MAIN_DISH_CATEGORIES = "30-31-14-15-25" # 肉,魚,ごはん,パスタ,麺
-SIDE_DISH_CATEGORIES = "11-12-13"      # 副菜,サラダ,スープ
+# --- アプリの基本設定 ---
+st.set_page_config(page_title="AIシェフの献立提案", page_icon="🍳")
 
-def search_and_score_recipes(app_id, category_id, keywords_string=""):
-    """
-    指定カテゴリ内でレシピを検索し、キーワードとの一致度でスコアリングして返す
-    """
-    params = {
-        'applicationId': app_id,
-        'format': 'json',
-        'categoryId': category_id,
-        'elements': 'recipeTitle,recipeUrl,recipeMaterial,recipeDescription,cookingTime'
-    }
-    # 検索の「きっかけ」として、入力されたキーワードの最初の単語だけをAPIに渡す
-    keywords = keywords_string.split()
-    if keywords:
-        params['keyword'] = keywords[0]
+# ジャンルの選択肢を定義
+GENRES = ["ジャンルを問わない", "和食", "洋食", "中華", "イタリアン", "韓国料理", "エスニック"]
 
-    request_url = 'https://app.rakuten.co.jp/services/api/Recipe/CategoryRanking/20170426'
-    response = requests.get(request_url, params=params)
-    data = response.json()
-    recipes_from_api = data.get('result', [])
+# --- APIキーの設定 ---
+# Streamlit CloudのSecretsからAPIキーを安全に読み込む
+api_key = st.secrets.get("GEMINI_API_KEY")
+
+if not api_key:
+    st.sidebar.error("StreamlitのSecretsにAPIキーが設定されていません。")
+    # ローカルテスト用に、サイドバーからの入力も可能にしておく
+    api_key_input = st.sidebar.text_input("または、ここにAPIキーを直接入力:", type="password")
+    if api_key_input:
+        api_key = api_key_input
+
+if api_key:
+    genai.configure(api_key=api_key)
+
+# --- 関数定義 ---
+def create_search_link(dish_name):
+    """料理名からGoogle検索用のURLを生成する"""
+    query = f"{dish_name} レシピ"
+    return f"https://www.google.com/search?q={quote_plus(query)}"
+
+def generate_menu(ingredients, genre):
+    """AIに献立を考えてもらう関数"""
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
-    # スコアリング処理
-    scored_recipes = []
-    if not keywords: # キーワードがなければ空のリストを返す
-        return []
+    genre_instruction = f"ジャンルは「{genre}」でお願いします。" if genre != "ジャンルを問わない" else "ジャンルは問いません。"
 
-    for recipe in recipes_from_api:
-        score = 0
-        title = recipe.get('recipeTitle', '')
-        materials = " ".join(recipe.get('recipeMaterial', []))
-        search_target = title + materials
-        
-        for kw in keywords:
-            if kw in search_target:
-                score += 1
-        
-        if score > 0:
-            scored_recipes.append({'recipe': recipe, 'score': score})
+    prompt = f"""
+    あなたはプロの料理家です。以下の【使用する食材】を活かし、【ジャンル】に沿った献立（主菜1品、副菜1品）を考えてください。
+    回答は、必ず以下のJSONフォーマットで、料理名のみを返してください。説明や挨拶は絶対に含めないでください。
+    {{
+      "main_dish": "主菜の料理名",
+      "side_dish": "副菜の料理名"
+    }}
+    ---
+    【ジャンル】
+    {genre_instruction}
+
+    【使用する食材】
+    {ingredients}
+    """
     
-    # スコアの高い順に並び替え
-    sorted_by_score = sorted(scored_recipes, key=lambda x: x['score'], reverse=True)
-    return [item['recipe'] for item in sorted_by_score]
+    response = model.generate_content(prompt)
+    cleaned_response = response.text.replace("```json", "").replace("```", "").strip()
+    return json.loads(cleaned_response)
 
-# --- Streamlitの画面設定 ---
-st.title('🍳 今日の献立、何にする？')
-st.write("使いたい食材を入力すると、主菜と副菜の献立を提案します。")
+# --- Streamlitの画面表示 ---
+st.title('🍳 AIシェフの献立提案')
+st.write("使いたい食材と希望のジャンルを選ぶと、AIが献立を考え、ウェブ上のレシピをすぐに検索できるようにします。")
 
-APPLICATION_ID = '1076379325522336288' 
+# --- UI（入力部分） ---
+selected_genre = st.selectbox("お料理のジャンルを選んでください", GENRES)
+ingredients = st.text_area('使いたい食材をスペースやカンマで区切って入力してください', placeholder='例: 豚肉 玉ねぎ 人参 卵')
 
-# --- UI部分 ---
-search_keyword = st.text_input(
-    '使いたい食材をスペースで区切って入力してください',
-    placeholder='例: 豚肉 玉ねぎ 人参'
-)
-
-if st.button('献立を提案してもらう！'):
-    if search_keyword:
-        # --- 主菜の検索 ---
-        main_dishes = search_and_score_recipes(APPLICATION_ID, MAIN_DISH_CATEGORIES, search_keyword)
-        
-        # --- 副菜の検索 ---
-        side_dishes = search_and_score_recipes(APPLICATION_ID, SIDE_DISH_CATEGORIES, search_keyword)
-
-        # --- 結果の表示 ---
-        st.header("本日の献立案")
-
-        if main_dishes:
-            st.subheader("主菜はこちら")
-            main_dish = main_dishes[0] # 最もスコアの高いものを1つ提案
-            st.write(f"**{main_dish.get('recipeTitle', '')}**")
-            materials_str = "、".join(main_dish.get('recipeMaterial', []))
-            st.write(f"**材料:** {materials_str}")
-            st.write(f"🔗 [作り方を見る]({main_dish.get('recipeUrl', '')})")
-        else:
-            st.warning("条件に合う主菜が見つかりませんでした。")
-        
-        st.markdown("---")
-
-        if side_dishes:
-            st.subheader("副菜はこちら")
-            side_dish = side_dishes[0] # 最もスコアの高いものを1つ提案
-            st.write(f"**{side_dish.get('recipeTitle', '')}**")
-            materials_str = "、".join(side_dish.get('recipeMaterial', []))
-            st.write(f"**材料:** {materials_str}")
-            st.write(f"🔗 [作り方を見る]({side_dish.get('recipeUrl', '')})")
-        else:
-            st.warning("条件に合う副菜が見つかりませんでした。")
-
-    else:
+# --- 検索実行と結果表示 ---
+if st.button('献立を考えてもらう！'):
+    if not api_key:
+        st.error("APIキーが設定されていません。")
+    elif not ingredients:
         st.info('まずは使いたい食材を入力してくださいね。')
+    else:
+        with st.spinner('AIシェフが腕によりをかけて考案中です... 🍳'):
+            try:
+                menu = generate_menu(ingredients, selected_genre)
+                main_dish_name = menu.get("main_dish")
+                side_dish_name = menu.get("side_dish")
+
+                st.header("本日の献立案はこちらです！")
+
+                if main_dish_name:
+                    st.subheader(f"主菜： {main_dish_name}")
+                    st.markdown(f"▶ **[このレシピの作り方をウェブで検索する]({create_search_link(main_dish_name)})**")
+                
+                st.markdown("---")
+
+                if side_dish_name:
+                    st.subheader(f"副菜： {side_dish_name}")
+                    st.markdown(f"▶ **[このレシピの作り方をウェブで検索する]({create_search_link(side_dish_name)})**")
+
+            except Exception as e:
+                st.error(f"エラーが発生しました: {e}")
+                st.error("AIからの回答を解析できませんでした。サーバーが混み合っているか、予期せぬ形式で返ってきた可能性があります。少し待ってから、もう一度試してみてください。")
+
+---
+これが、私たちのプロジェクトの本当の最終ステップです。この更新が終われば、あなたのアイデアがすべて詰まったアプリが完成します。お疲れ様でした！
