@@ -51,7 +51,7 @@ st.markdown(
         border-radius: 3px;
         pointer-events: none;
     }
-    
+
     /* --- タイトル --- */
     h1 {
         text-align: center;
@@ -60,13 +60,13 @@ st.markdown(
         font-size: 3.2em;
         letter-spacing: 1px;
     }
-    
+
     /* --- 説明文 --- */
     .st-emotion-cache-1yycg8b p {
         text-align: center;
         font-size: 1em;
     }
-    
+
     /* --- サブタイトル --- */
     h2 {
         text-align: center;
@@ -83,7 +83,7 @@ st.markdown(
         margin-bottom: 1em;
         font-size: 1.3em;
     }
-    
+
     /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
         border: 1px solid #c9c3b3 !important;
@@ -93,27 +93,28 @@ st.markdown(
         font-size: 16px;
         color: #4a4a4a !important;
     }
-    
+
     /* ★★★ ここからがボタンの修正箇所 ★★★ */
-    /* --- ボタン --- */
-    .stButton>button {
-        background-color: #a88f59 !important;
-        color: white !important;
-        border: 1px solid #a88f59 !important;
-        border-radius: 5px !important;
-        font-family: 'Noto Serif JP', serif !important;
-        font-weight: 500 !important;
-        letter-spacing: 1px !important;
-        padding: 12px 24px !important;
-        font-size: 18px !important;
-        transition: background-color 0.3s ease !important;
+    /* Streamlitの標準ボタンを非表示にする */
+    .stButton {
+        display: none;
     }
-    .stButton>button:hover {
-        background-color: #8c7749 !important;
-        border-color: #8c7749 !important;
+    /* 自作の画像ボタンのスタイル */
+    .custom-button {
+        display: inline-block;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    .custom-button:hover {
+        transform: scale(1.03);
+    }
+    .custom-button img {
+        width: 100%;
+        height: auto;
     }
     /* ★★★ ここまでがボタンの修正箇所 ★★★ */
-    
+
+
     /* --- 結果表示（Expander） --- */
     details {
         border: 1px solid #e0d8c0;
@@ -171,7 +172,7 @@ def get_recipe_details(dish_name):
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
     あなたはプロの料理家です。「{dish_name}」の作り方を、以下のフォーマットで、具体的かつ分かりやすく記述してください。
-    
+
     **材料:**
     - 材料1 (分量)
     - 材料2 (分量)
@@ -196,12 +197,14 @@ st.write("お客様の食材とご要望を元に、AIシェフが特別な献�
 with st.form(key='my_form'):
     ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
     user_request = st.text_input('その他、ご要望はございますか？（任意）', placeholder='例: 3品ほしい。一品は汁物')
-    
+
+    # ボタンを2列に配置
     col1, col2 = st.columns([3, 1])
     with col1:
         submit_button = st.form_submit_button(label='献立を提案いただく')
     with col2:
         clear_button = st.form_submit_button(label='クリア')
+
 
 # --- 検索実行と結果表示 ---
 if submit_button:
@@ -216,10 +219,10 @@ if submit_button:
                 menu_list = menu_data.get("menu", [])
 
             st.header("本日のおすすめ")
-            
+
             if not menu_list:
                 st.warning("ご要望に沿った献立の提案が難しいようです。条件を変えてお試しください。")
-            
+
             for dish in menu_list:
                 time.sleep(1) # APIに連続でリクエストしないよう、1秒待つ
                 dish_type = dish.get("type", "一品")
@@ -228,7 +231,7 @@ if submit_button:
                 if dish_name != "名称不明":
                     with st.spinner(f'「{dish_name}」のレシピを準備しています...'):
                         recipe_details = get_recipe_details(dish_name)
-                    
+
                     with st.expander(f"{dish_type}： {dish_name}", expanded=True):
                         st.markdown(recipe_details, unsafe_allow_html=True)
                         st.markdown(f"**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(dish_name)})", unsafe_allow_html=True)
