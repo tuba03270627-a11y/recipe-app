@@ -1,27 +1,33 @@
 import streamlit as st
 import requests
 
-def search_and_score_recipes(app_id, keywords_string=""):
+# 主菜・副菜のカテゴリIDを定義
+MAIN_DISH_CATEGORIES = "30-31-14-15-25" # 肉,魚,ごはん,パスタ,麺
+SIDE_DISH_CATEGORIES = "11-12-13"      # 副菜,サラダ,スープ
+
+def search_and_score_recipes(app_id, category_id, keywords_string=""):
     """
-    レシピを検索し、キーワードとの一致度でスコアリングして並び替える関数
+    指定カテゴリ内でレシピを検索し、キーワードとの一致度でスコアリングして返す
     """
-    # 検索の「きっかけ」として、入力されたキーワード全体をAPIに投げる
     params = {
         'applicationId': app_id,
         'format': 'json',
-        'keyword': keywords_string,
+        'categoryId': category_id,
         'elements': 'recipeTitle,recipeUrl,recipeMaterial,recipeDescription,cookingTime'
     }
+    # 検索の「きっかけ」として、入力されたキーワードの最初の単語だけをAPIに渡す
+    keywords = keywords_string.split()
+    if keywords:
+        params['keyword'] = keywords[0]
+
     request_url = 'https://app.rakuten.co.jp/services/api/Recipe/CategoryRanking/20170426'
-    
     response = requests.get(request_url, params=params)
     data = response.json()
     recipes_from_api = data.get('result', [])
     
     # スコアリング処理
     scored_recipes = []
-    keywords = keywords_string.split()
-    if not keywords:
+    if not keywords: # キーワードがなければ空のリストを返す
         return []
 
     for recipe in recipes_from_api:
@@ -43,9 +49,8 @@ def search_and_score_recipes(app_id, keywords_string=""):
 
 # --- Streamlitの画面設定 ---
 st.title('🍳 今日の献立、何にする？')
-st.write("使いたい食材を入力すると、関連性の高い順にレシピを提案します。")
+st.write("使いたい食材を入力すると、主菜と副菜の献立を提案します。")
 
-# アプリIDはここに直接入力してください
 APPLICATION_ID = '1076379325522336288' 
 
 # --- UI部分 ---
@@ -54,21 +59,38 @@ search_keyword = st.text_input(
     placeholder='例: 豚肉 玉ねぎ 人参'
 )
 
-if st.button('レシピを検索！'):
+if st.button('献立を提案してもらう！'):
     if search_keyword:
-        recipes = search_and_score_recipes(APPLICATION_ID, search_keyword)
+        # --- 主菜の検索 ---
+        main_dishes = search_and_score_recipes(APPLICATION_ID, MAIN_DISH_CATEGORIES, search_keyword)
         
-        if recipes:
-            st.success("関連性の高い順にレシピを表示します！")
-            for recipe in recipes[:10]: # 上位10件を表示
-                st.subheader(recipe.get('recipeTitle', ''))
-                st.write(f"**調理時間:** {recipe.get('cookingTime', '情報なし')}")
-                # 材料リストをきれいに表示
-                materials_str = "、".join(recipe.get('recipeMaterial', []))
-                st.write(f"**材料:** {materials_str}")
-                st.write(f"🔗 [レシピを見る]({recipe.get('recipeUrl', '')})")
-                st.markdown("---")
+        # --- 副菜の検索 ---
+        side_dishes = search_and_score_recipes(APPLICATION_ID, SIDE_DISH_CATEGORIES, search_keyword)
+
+        # --- 結果の表示 ---
+        st.header("本日の献立案")
+
+        if main_dishes:
+            st.subheader("主菜はこちら")
+            main_dish = main_dishes[0] # 最もスコアの高いものを1つ提案
+            st.write(f"**{main_dish.get('recipeTitle', '')}**")
+            materials_str = "、".join(main_dish.get('recipeMaterial', []))
+            st.write(f"**材料:** {materials_str}")
+            st.write(f"🔗 [作り方を見る]({main_dish.get('recipeUrl', '')})")
         else:
-            st.warning("その食材に合うレシピは見つかりませんでした。")
+            st.warning("条件に合う主菜が見つかりませんでした。")
+        
+        st.markdown("---")
+
+        if side_dishes:
+            st.subheader("副菜はこちら")
+            side_dish = side_dishes[0] # 最もスコアの高いものを1つ提案
+            st.write(f"**{side_dish.get('recipeTitle', '')}**")
+            materials_str = "、".join(side_dish.get('recipeMaterial', []))
+            st.write(f"**材料:** {materials_str}")
+            st.write(f"🔗 [作り方を見る]({side_dish.get('recipeUrl', '')})")
+        else:
+            st.warning("条件に合う副菜が見つかりませんでした。")
+
     else:
         st.info('まずは使いたい食材を入力してくださいね。')
