@@ -20,32 +20,39 @@ st.markdown(
         background-size: cover;
     }
 
-    /* --- 全体の基本フォントと文字色（背景に対する色） --- */
-    body {
-        font-family: 'Cormorant Garamond', serif; 
-        color: #e3dcd2; /* 明るいクリーム色 */
-        font-size: 18px;
-    }
+    /* ★★★ ここからが修正箇所 ★★★ */
 
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
         max-width: 800px; padding: 2.5rem; background-color: rgba(253, 251, 243, 0.95);
         border: 1px solid #d4c8b8; border-radius: 2px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-    }
-    
-    /* ★★★ ここが文字色を修正する部分 ★★★ */
-    /* メニュー用紙の中のテキストの色を濃くして、読みやすくする */
-    .main .block-container, .main .block-container p, .stMarkdown, .st-emotion-cache-1qg05j3 {
-        color: #5a483a !important;
+        /* この中の文字はすべて濃い色にする */
+        color: #5a483a !important; 
     }
     
     /* --- タイトル --- */
     h1 {
-        font-family: 'Playfair Display', serif; font-style: italic; color: #8c7853; text-align: center;
-        border-bottom: 2px double #d4c8b8; padding-bottom: 0.5em; margin-bottom: 1.5em; font-size: 3em;
+        font-family: 'Playfair Display', serif; font-style: italic; 
+        color: #e3dcd2; /* 明るいクリーム色に変更 */
+        text-align: center;
+        border-bottom: 2px double rgba(227, 220, 210, 0.5); /* 線の色も明るく */
+        padding-bottom: 0.5em; margin-bottom: 1em; font-size: 3em;
     }
     
-    /* --- 入力欄 --- */
+    /* アプリの説明文（タイトル下）の色 */
+    .st-emotion-cache-1yycg8b p {
+        color: #e3dcd2; /* 明るいクリーム色に変更 */
+        text-align: center;
+    }
+
+    /* ★★★ ここまでが修正箇所 ★★★ */
+    
+    /* --- 入力欄のラベル --- */
+    .st-emotion-cache-1qg05j3 {
+        color: #5a483a !important; /* ラベルの色を濃く固定 */
+    }
+
+    /* 入力欄 */
     .stTextArea textarea, .stTextInput>div>div>input {
         border: 1px solid #d4c8b8 !important; background-color: #fff; color: #5a483a !important;
     }
@@ -90,7 +97,6 @@ if api_key:
 
 # --- 関数定義 ---
 def generate_menu_names(ingredients, request_text):
-    """AIに献立名を考えてもらう関数"""
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
     あなたは格式高いレストランのシェフです。以下の【使用する食材】を創造的に活かし、【お客様からのご要望】に沿った、気品のある献立（主菜1品、副菜1品）を考えてください。
@@ -111,7 +117,6 @@ def generate_menu_names(ingredients, request_text):
     return json.loads(cleaned_response)
 
 def get_recipe_details(dish_name):
-    """AIに特定の料理のレシピを教えてもらう関数"""
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
     あなたはプロの料理家です。「{dish_name}」の作り方を、以下のフォーマットで、具体的かつ分かりやすく記述してください。
@@ -129,13 +134,12 @@ def get_recipe_details(dish_name):
     return response.text
 
 def create_search_link(dish_name):
-    """料理名からGoogle検索用のURLを生成する関数"""
     query = f"{dish_name} レシピ"
     return f"https://www.google.com/search?q={quote_plus(query)}"
 
 # --- Streamlitの画面表示 ---
 st.title('AI Chef\'s Special Menu')
-# st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。") # 説明文はCSSで色指定が難しいため、一旦コメントアウト
+st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。")
 
 # --- UI（入力部分） ---
 ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
