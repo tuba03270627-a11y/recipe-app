@@ -17,7 +17,18 @@ st.markdown(
     .stApp {
         background-color: #f5f0e1;
     }
-    
+    /* すべての文字の基本色を、読みやすい濃い色に固定 */
+    body, p, h1, h2, h3, h4, h5, h6, label, .stMarkdown, div[data-testid="stMarkdownContainer"] p {
+        color: #4a4a4a !important;
+        font-family: 'Noto Serif JP', serif;
+    }
+    /* タイトルなど、一部の色だけアクセントとして変更 */
+    h1, h2, a {
+        color: #a88f59 !important;
+        font-family: 'Playfair Display', serif !important;
+    }
+    a { font-weight: bold; }
+
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
         max-width: 700px; padding: 3rem; background-color: #fffef8;
@@ -29,27 +40,6 @@ st.markdown(
         border: 2px double #d8c9b1; border-radius: 3px; pointer-events: none;
     }
     
-    /* ★★★ ここからが色の最終修正 ★★★ */
-    /* 全ての基本文字色を濃い色に強制指定 */
-    body, p, label, .stMarkdown, div[data-testid="stMarkdownContainer"] p, li, ol, ul {
-        color: #4a4a4a !important;
-        font-family: 'Noto Serif JP', serif !important;
-    }
-    h1, h2, h3, h4, h5, h6 {
-        color: #4a4a4a !important;
-        font-family: 'Noto Serif JP', serif !important;
-    }
-    /* アクセントカラーを個別に強力指定 */
-    h1, h2, a {
-        color: #a88f59 !important;
-        font-family: 'Playfair Display', serif !important;
-    }
-    /* Expanderのタイトル文字を強制指定 */
-    details summary {
-        color: #4a4a4a !important;
-    }
-    /* ★★★ ここまでが色の最終修正 ★★★ */
-
     h1 { font-style: italic; text-align: center; padding-bottom: 0.3em; margin-bottom: 1em; font-size: 3.2em; letter-spacing: 1px; }
     .st-emotion-cache-1yycg8b p { text-align: center; font-size: 1em; }
     h2 { font-style: italic; text-align: center; margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em; }
@@ -74,7 +64,12 @@ st.markdown(
     
     /* --- 結果表示（Expander） --- */
     details { border: 1px solid #e0d8c0; border-radius: 5px; padding: 1em; margin-bottom: 1em; background-color: rgba(255,255,255,0.3); }
-    details summary { font-weight: 700; font-size: 1.1em; cursor: pointer; }
+    details summary {
+        font-weight: 700;
+        font-size: 1.1em;
+        cursor: pointer;
+        color: #4a4a4a !important; /* ← ★★★この一行を追加しました★★★ */
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -92,7 +87,6 @@ if api_key:
     genai.configure(api_key=api_key)
 
 # --- 関数定義 ---
-# (Pythonの関数部分は変更ありません)
 def generate_full_menu(ingredients, request_text):
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
@@ -119,6 +113,7 @@ def generate_full_menu(ingredients, request_text):
     ---
     【お客様からのご要望】
     {request_text if request_text else "シェフのおまかせ（主菜と副菜）"}
+
     【使用する食材】
     {ingredients}
     """
