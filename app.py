@@ -23,15 +23,12 @@ st.markdown(
         font-family: 'Noto Serif JP', serif;
     }
     /* タイトルなど、一部の色だけアクセントとして変更 */
-    h1, h2 {
+    h1, h2, a {
         color: #a88f59 !important;
         font-family: 'Playfair Display', serif !important;
         font-style: italic;
     }
-    a {
-       color: #a88f59 !important;
-       font-weight: bold;
-    }
+    a { font-weight: bold; }
 
     /* --- メインコンテンツのコンテナ（メニュー用紙）--- */
     .main .block-container {
@@ -56,14 +53,20 @@ st.markdown(
     .st-emotion-cache-1yycg8b p { text-align: center; font-size: 1em; }
     h2 { text-align: center; margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em; }
     
+    /* ★★★ ここからがメニュー名の修正箇所 ★★★ */
     /* 料理名のスタイル */
     h3 {
-        border-bottom: 1px dotted #b8b0a0;
+        font-family: 'Playfair Display', serif !important; /* タイトルと同じフォントに変更 */
+        font-style: italic;
+        text-align: center;
+        font-size: 1.8em; /* 少し大きくして存在感を出す */
+        color: #3d3d3d !important;
+        border-bottom: 1px solid #e0d8c0; /* 線を細く上品に */
         padding-bottom: 0.5em;
-        margin-top: 2em; /* 上の料理との間隔を空ける */
-        margin-bottom: 1em;
-        font-size: 1.4em;
+        margin-top: 2.5em;
+        margin-bottom: 1.5em;
     }
+    /* ★★★ ここまで ★★★ */
     
     /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
@@ -92,6 +95,21 @@ st.markdown(
         background-color: #8c7749 !important;
         border-color: #8c7749 !important;
         color: white !important;
+    }
+    
+    /* --- 結果表示（Expander） --- */
+    details {
+        border: 1px solid #e0d8c0;
+        border-radius: 5px;
+        padding: 1em;
+        margin-bottom: 1em;
+        background-color: rgba(255,255,255,0.3);
+    }
+    details summary {
+        font-weight: 700;
+        font-size: 1.1em;
+        cursor: pointer;
+        color: #4a4a4a !important;
     }
     </style>
     """,
@@ -170,8 +188,6 @@ if submit_button:
     else:
         try:
             with st.spinner('シェフが特別な献立を考案しております... 📜'):
-                # ★★★ ここからが改善点 ★★★
-                # 複数のAI呼び出しをやめ、一度に全てを取得する方法に戻します
                 menu_data = generate_full_menu(ingredients, user_request)
                 menu_list = menu_data.get("menu", [])
 
@@ -190,16 +206,21 @@ if submit_button:
                     # expanderをやめて、subheaderとmarkdownで直接表示
                     st.subheader(f"{dish_type}： {dish_name}")
                     
-                    st.markdown("**材料:**")
-                    for m in materials:
-                        st.markdown(f"- {m}")
+                    show_recipe = st.toggle('作り方を表示', key=f"toggle_{dish_name}") # キーをユニークにする
                     
-                    st.markdown("\n**作り方:**")
-                    for i, s in enumerate(steps, 1):
-                        st.markdown(f"{i}. {s}")
+                    if show_recipe:
+                        st.markdown("**材料:**")
+                        for m in materials:
+                            st.markdown(f"- {m}")
+                        
+                        st.markdown("\n**作り方:**")
+                        for i, s in enumerate(steps, 1):
+                            st.markdown(f"{i}. {s}")
+                        
+                        st.markdown(f"\n**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(dish_name)})", unsafe_allow_html=True)
                     
-                    st.markdown(f"\n**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(dish_name)})", unsafe_allow_html=True)
-                    # ★★★ ここまでが改善点 ★★★
+                    # 各料理の区切り線
+                    st.markdown("<hr style='border: 1px dotted #b8b0a0; margin-top: 2em; margin-bottom: 0;'>", unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"申し訳ございません、エラーが発生いたしました: {e}")
