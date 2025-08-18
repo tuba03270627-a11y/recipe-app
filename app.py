@@ -53,7 +53,6 @@ st.markdown(
     .st-emotion-cache-1yycg8b p { text-align: center; font-size: 1em; }
     h2 { text-align: center; margin-top: 2em; margin-bottom: 1.5em; font-size: 2.2em; }
     
-    /* ★★★ ここからがメニュー名の修正箇所 ★★★ */
     /* 料理名のスタイル */
     h3 {
         font-family: 'Playfair Display', serif !important; /* タイトルと同じフォントに変更 */
@@ -66,7 +65,6 @@ st.markdown(
         margin-top: 2.5em;
         margin-bottom: 1.5em;
     }
-    /* ★★★ ここまで ★★★ */
     
     /* --- 入力欄 --- */
     .stTextArea textarea, .stTextInput>div>div>input {
@@ -95,21 +93,6 @@ st.markdown(
         background-color: #8c7749 !important;
         border-color: #8c7749 !important;
         color: white !important;
-    }
-    
-    /* --- 結果表示（Expander） --- */
-    details {
-        border: 1px solid #e0d8c0;
-        border-radius: 5px;
-        padding: 1em;
-        margin-bottom: 1em;
-        background-color: rgba(255,255,255,0.3);
-    }
-    details summary {
-        font-weight: 700;
-        font-size: 1.1em;
-        cursor: pointer;
-        color: #4a4a4a !important;
     }
     </style>
     """,
@@ -196,6 +179,9 @@ if submit_button:
             if not menu_list:
                 st.warning("ご要望に沿った献立の提案が難しいようです。条件を変えてお試しください。")
             
+            # --- ★★★ ここからが改善点 ★★★ ---
+            # ループ処理を変更し、一度に全てのレシピ情報を取得してから表示する
+            recipes_to_display = []
             for dish in menu_list:
                 dish_type = dish.get("type", "一品")
                 dish_name = dish.get("name", "名称不明")
@@ -203,24 +189,27 @@ if submit_button:
                 steps = dish.get("steps", [])
 
                 if dish_name != "名称不明":
-                    # expanderをやめて、subheaderとmarkdownで直接表示
-                    st.subheader(f"{dish_type}： {dish_name}")
-                    
-                    show_recipe = st.toggle('作り方を表示', key=f"toggle_{dish_name}") # キーをユニークにする
-                    
-                    if show_recipe:
-                        st.markdown("**材料:**")
-                        for m in materials:
-                            st.markdown(f"- {m}")
-                        
-                        st.markdown("\n**作り方:**")
-                        for i, s in enumerate(steps, 1):
-                            st.markdown(f"{i}. {s}")
-                        
-                        st.markdown(f"\n**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(dish_name)})", unsafe_allow_html=True)
-                    
-                    # 各料理の区切り線
-                    st.markdown("<hr style='border: 1px dotted #b8b0a0; margin-top: 2em; margin-bottom: 0;'>", unsafe_allow_html=True)
+                    recipes_to_display.append({
+                        "type": dish_type,
+                        "name": dish_name,
+                        "materials": materials,
+                        "steps": steps
+                    })
+
+            # 取得したレシピ情報を順番に表示
+            for recipe in recipes_to_display:
+                st.subheader(f"{recipe['type']}： {recipe['name']}")
+                
+                st.markdown("**材料:**")
+                for m in recipe['materials']:
+                    st.markdown(f"- {m}")
+                
+                st.markdown("\n**作り方:**")
+                for i, s in enumerate(recipe['steps'], 1):
+                    st.markdown(f"{i}. {s}")
+                
+                st.markdown(f"\n**さらに詳しく** ▷ [*写真付きの作り方をウェブで探す*]({create_search_link(recipe['name'])})", unsafe_allow_html=True)
+                st.markdown("<hr style='border: 1px dotted #b8b0a0; margin-top: 2em; margin-bottom: 0;'>", unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"申し訳ございません、エラーが発生いたしました: {e}")
