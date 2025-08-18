@@ -62,14 +62,9 @@ st.markdown(
         background-color: #8c7749 !important; border-color: #8c7749 !important; color: white !important;
     }
     
-    /* --- 結果表示（Expander） --- */
-    details { border: 1px solid #e0d8c0; border-radius: 5px; padding: 1em; margin-bottom: 1em; background-color: rgba(255,255,255,0.3); }
-    details summary {
-        font-weight: 700;
-        font-size: 1.1em;
-        cursor: pointer;
-        color: #4a4a4a !important; /* ← ★★★この一行を追加しました★★★ */
-    }
+    /* ★★★ 結果表示（Expander）に関するCSS指定をすべて削除しました ★★★ */
+    /* これにより、表示が確実なStreamlitの標準デザインが適用されます */
+    
     </style>
     """,
     unsafe_allow_html=True,
@@ -77,6 +72,7 @@ st.markdown(
 
 
 # --- APIキーの設定 ---
+# (変更なし)
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
 except (FileNotFoundError, KeyError):
@@ -87,6 +83,7 @@ if api_key:
     genai.configure(api_key=api_key)
 
 # --- 関数定義 ---
+# (変更なし)
 def generate_full_menu(ingredients, request_text):
     model = genai.GenerativeModel('gemini-1.5-flash')
     prompt = f"""
@@ -126,10 +123,10 @@ def create_search_link(dish_name):
     return f"https://www.google.com/search?q={quote_plus(query)}"
 
 # --- Streamlitの画面表示 ---
+# (変更なし)
 st.title('AI Chef\'s Special Menu')
 st.write("お客様の食材とご要望を元に、AIシェフが特別な献立と作り方をご提案いたします。")
 
-# --- UI（入力部分）をフォームで囲む ---
 with st.form(key='my_form'):
     ingredients = st.text_area('ご使用になる食材をお聞かせください', placeholder='例: 鶏もも肉、パプリカ、玉ねぎ、白ワイン')
     user_request = st.text_input('その他、ご要望はございますか？（任意）', placeholder='例: 3品ほしい。一品は汁物')
@@ -140,7 +137,6 @@ with st.form(key='my_form'):
     with col2:
         clear_button = st.form_submit_button(label='クリア')
 
-# --- 検索実行と結果表示 ---
 if submit_button:
     if not api_key:
         st.error("恐れ入りますが、先にAPIキーの設定をお願いいたします。")
